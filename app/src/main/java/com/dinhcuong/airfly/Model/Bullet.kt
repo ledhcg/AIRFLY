@@ -20,4 +20,12 @@ class Bullet (res : Resources) {
         get() = field
 
     val w = bullet.width
+    val h = bullet.height
+
+    fun getTargetX() : Int {
+        return x + w
+    }
+    fun getTargetY() : Int {
+        return y + h
+    }
 }

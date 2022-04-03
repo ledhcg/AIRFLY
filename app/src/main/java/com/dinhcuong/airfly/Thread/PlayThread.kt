@@ -8,8 +8,6 @@ import com.dinhcuong.airfly.Model.*
 import com.dinhcuong.airfly.R
 import kotlin.collections.ArrayList
 import kotlin.random.Random
-import android.graphics.Typeface
-import java.util.*
 
 
 class PlayThread : Thread {
@@ -26,11 +24,14 @@ class PlayThread : Thread {
     private var startTime: Long = 0
     private var frameTime: Long = 0
 
+    private var killBird: Int = 0
+    private var score: Int = 0
 
-    private val birb: Birb
-    var birbArray: ArrayList<Birb> = arrayListOf()
-    val numBirb = 5
-    var iBirb = 0
+
+    private val bird: Bird
+    var birdArray: ArrayList<Bird> = arrayListOf()
+    val numBird = 5
+    var iBird = 0
 
     private val flight: Flight
     private val velocity = 3
@@ -45,9 +46,7 @@ class PlayThread : Thread {
 
     //Game state: 0 = Stop; 1 = Running; 2 = Game Over
     private var state: Int = 0
-    private var velocityBirb: Int = 10
-
-
+    private var velocityBird: Int = 10
 
 
     var cot: Cot? = null
@@ -61,8 +60,6 @@ class PlayThread : Thread {
 
     var iCot = 0
     var isDead = false
-
-
 
 
     var isRunning: Boolean = false //Flag to Run or Stop
@@ -79,8 +76,8 @@ class PlayThread : Thread {
 
         flight = Flight(resources)
 
-        birb = Birb(resources)
-        createBirb(resources)
+        bird = Bird(resources)
+        createBird(resources)
 
 
         bullet = Bullet(resources)
@@ -105,12 +102,12 @@ class PlayThread : Thread {
         createCot(resources)
     }
 
-    private fun createBirb(resources: Resources) {
-        for (i in 0 until numBirb) {
-            val birb = Birb(resources)
-            birb.x = ScreenSize.SCREEN_WIDTH
-            birb.y = ScreenSize.SCREEN_HEIGHT - ran.nextInt(300, 1000)
-            birbArray.add(birb)
+    private fun createBird(resources: Resources) {
+        for (i in 0 until numBird) {
+            val bird = Bird(resources)
+            bird.x = ScreenSize.SCREEN_WIDTH
+            bird.y = ScreenSize.SCREEN_HEIGHT - ran.nextInt(300, 1000)
+            birdArray.add(bird)
         }
     }
 
@@ -149,12 +146,12 @@ class PlayThread : Thread {
                         //rendering the pipes. Damn pipes.
                         renderCot(canvas)
 
-                        //rendering the birb on canvas
-                        renderBirb(canvas)
+                        //rendering the bird on canvas
+                        renderBird(canvas)
 
                         renderFlight(canvas)
 
-                        canvas.drawText("FPS: $frameTime", 100f, 100f, paint)
+                        canvas.drawText("Bird killed: $killBird", 100f, 100f, paint)
                     }
                 } finally {
                     holder.unlockCanvasAndPost(canvas)
@@ -185,11 +182,31 @@ class PlayThread : Thread {
                 if (iCot > numCot - 1) {
                     iCot = 0
                 }
-            } else if (((cotArray.get(iCot).x) < flight.getFlight(0).width) &&
-                (cotArray.get(iCot).ccY > flight.y || cotArray.get(iCot)
-                    .getBottomY() < flight.y + flight.getFlight(0).height)
+            } else if (
+                (cotArray.get(iCot).x > flight.x
+                        && cotArray.get(iCot).x < flight.x + flight.getFlight(0).width
+                        && cotArray.get(iCot).ccY > flight.y
+                        && cotArray.get(iCot).ccY < flight.y + flight.getFlight(0).height)
+                || (cotArray.get(iCot).x > flight.x
+                        && cotArray.get(iCot).x < flight.x + flight.getFlight(0).width
+                        && cotArray.get(iCot).getBottomY() > flight.y
+                        && cotArray.get(iCot).getBottomY() < flight.y + flight.getFlight(0).height)
+                || (cotArray.get(iCot).x + cot!!.w > flight.x
+                        && cotArray.get(iCot).x + cot!!.w < flight.x + flight.getFlight(0).width
+                        && cotArray.get(iCot).ccY > flight.y
+                        && cotArray.get(iCot).ccY < flight.y + flight.getFlight(0).height)
+                || (cotArray.get(iCot).x + cot!!.w > flight.x
+                        && cotArray.get(iCot).x + cot!!.w < flight.x + flight.getFlight(0).width
+                        && cotArray.get(iCot).getBottomY() > flight.y
+                        && cotArray.get(iCot).getBottomY() < flight.y + flight.getFlight(0).height)
             )
                 isDead = true
+
+//            else if (((cotArray.get(iCot).x) < flight.getFlight(0).width) &&
+//                (cotArray.get(iCot).ccY > flight.y || cotArray.get(iCot)
+//                    .getBottomY() < flight.y + flight.getFlight(0).height)
+//            )
+//                isDead = true
 
             for (i in 0 until numCot) {// 0, 1, 2
                 if (cotArray.get(i).x < -cot!!.w) {
@@ -224,36 +241,56 @@ class PlayThread : Thread {
         }
     }
 
-    private fun renderBirb(canvas: Canvas?) {
+    private fun renderBird(canvas: Canvas?) {
         if (state == 1) {
+            for (i in 0 until numBird) {
+                for (j in 0 until numBullet) {
+                    if (
+                        (bulletArray.get(j).getTargetX() > birdArray.get(i).x
+                                && bulletArray.get(j).getTargetX() < birdArray.get(i).x + birdArray.get(i).getBird(0).width
+                                && bulletArray.get(j).y > birdArray.get(i).y
+                                && bulletArray.get(j).y < birdArray.get(i).y + birdArray.get(i).getBird(0).height)
+                        || (bulletArray.get(j).getTargetX() > birdArray.get(i).x
+                                && bulletArray.get(j).getTargetX() < birdArray.get(i).x + birdArray.get(i).getBird(0).width
+                                && bulletArray.get(j).getTargetY() > birdArray.get(i).y
+                                && bulletArray.get(j).getTargetY() < birdArray.get(i).y + birdArray.get(i).getBird(0).height)
+                    ) {
+                        birdArray.get(i).x = ScreenSize.SCREEN_WIDTH
+                        birdArray.get(i).y = ScreenSize.SCREEN_HEIGHT - ran.nextInt(300, 1000)
 
+                        bulletArray.get(j).x = flight.x + 150
+                        bulletArray.get(j).y = flight.y + 160
+                        killBird++
+                    }
+                }
+            }
 
-            for (i in 0 until numBirb) {// 0, 1, 2
-                if (birbArray.get(i).x < 0) {
+            for (i in 0 until numBird) {// 0, 1, 2
+                if (birdArray.get(i).x < 0) {
 
-                    birbArray.get(i).x = ScreenSize.SCREEN_WIDTH
+                    birdArray.get(i).x = ScreenSize.SCREEN_WIDTH
 
-                    birbArray.get(i).y = ScreenSize.SCREEN_HEIGHT - ran.nextInt(300, 1000)
+                    birdArray.get(i).y = ScreenSize.SCREEN_HEIGHT - ran.nextInt(300, 1000)
                 }
 
                 if (!isDead) {
-                    birbArray.get(i).x = birbArray.get(i).x - ran.nextInt(10, 30)
+                    birdArray.get(i).x = birdArray.get(i).x - ran.nextInt(10, 30)
                 }
 
-                var current: Int = birbArray.get(i).currentFrame
+                var current: Int = birdArray.get(i).currentFrame
                 canvas!!.drawBitmap(
-                    birbArray.get(i).getBirb(current),
-                    birbArray.get(i).x.toFloat(),
-                    birbArray.get(i).y.toFloat(),
+                    birdArray.get(i).getBird(current),
+                    birdArray.get(i).x.toFloat(),
+                    birdArray.get(i).y.toFloat(),
                     null
                 )
 
                 current++
-                if (current > birbArray.get(i).maxFrame)
+                if (current > birdArray.get(i).maxFrame)
                     current = 0
-                birbArray.get(i).currentFrame = current
-                var x = birbArray.get(i).x
-                var y = birbArray.get(i).y
+                birdArray.get(i).currentFrame = current
+                var x = birdArray.get(i).x
+                var y = birdArray.get(i).y
                 Log.d("CHIM $i: ", "[$x, $y]")
             }
         }
@@ -308,7 +345,8 @@ class PlayThread : Thread {
                 }
                 //moving cot right to left
                 if (!isDead) {
-                    bulletArray.get(i).x = bulletArray.get(i).x + velocityBullet*ran.nextInt(1, 10)
+                    bulletArray.get(i).x =
+                        bulletArray.get(i).x + velocityBullet * ran.nextInt(1, 10)
                 }
 
                 canvas!!.drawBitmap(
