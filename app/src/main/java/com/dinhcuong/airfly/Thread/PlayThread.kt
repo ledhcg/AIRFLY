@@ -22,23 +22,32 @@ class PlayThread : Thread {
     private val FPS: Int = (1000.0 / 60.0).toInt() //Time passed per frame. 60 FPS
     private val backgroundImage = BackgroundImage() //Hello, new object
     private var bitmapImage: Bitmap? = null
+    private val paint: Paint
     private var startTime: Long = 0
     private var frameTime: Long = 0
-    private val velocity = 3
-    private val birb: Birb //birb model that will fly
+
+
+    private val birb: Birb
+    var birbArray: ArrayList<Birb> = arrayListOf()
+    val numBirb = 5
+    var iBirb = 0
 
     private val flight: Flight
+    private val velocity = 3
+    private var velocityFlight: Int = 0
 
     private var bullet: Bullet
+    private var velocityBullet: Int = 20
     var bulletArray: ArrayList<Bullet> = arrayListOf()
     val numBullet = 16
     var iBullet = 0
 
+
     //Game state: 0 = Stop; 1 = Running; 2 = Game Over
     private var state: Int = 0
-    private var velocityBirb: Int = 0
-    private var velocityFlight: Int = 0
-    private var velocityBullet: Int = 20
+    private var velocityBirb: Int = 10
+
+
 
 
     var cot: Cot? = null
@@ -54,7 +63,6 @@ class PlayThread : Thread {
     var isDead = false
 
 
-    private val paint: Paint
 
 
     var isRunning: Boolean = false //Flag to Run or Stop
@@ -69,9 +77,11 @@ class PlayThread : Thread {
         this.resources = resources
         isRunning = true
 
+        flight = Flight(resources)
 
         birb = Birb(resources)
-        flight = Flight(resources)
+        createBirb(resources)
+
 
         bullet = Bullet(resources)
         createBullet(resources)
@@ -95,6 +105,15 @@ class PlayThread : Thread {
         createCot(resources)
     }
 
+    private fun createBirb(resources: Resources) {
+        for (i in 0 until numBirb) {
+            val birb = Birb(resources)
+            birb.x = ScreenSize.SCREEN_WIDTH
+            birb.y = ScreenSize.SCREEN_HEIGHT - ran.nextInt(300, 1000)
+            birbArray.add(birb)
+        }
+    }
+
     private fun createBullet(resources: Resources) {
         for (i in 0 until numBullet) {
             val bullet = Bullet(resources)
@@ -102,7 +121,6 @@ class PlayThread : Thread {
             bullet.y = flight.y + ran.nextInt(150, 200)
             bulletArray.add(bullet)
         }
-        Log.d("This is my array", "arr: " + bulletArray);
     }
 
     private fun createCot(resources: Resources) {
@@ -136,7 +154,7 @@ class PlayThread : Thread {
 
                         renderFlight(canvas)
 
-                        canvas.drawText("FPS: $FPS", 100f, 100f, paint)
+                        canvas.drawText("FPS: $frameTime", 100f, 100f, paint)
                     }
                 } finally {
                     holder.unlockCanvasAndPost(canvas)
@@ -207,19 +225,38 @@ class PlayThread : Thread {
     }
 
     private fun renderBirb(canvas: Canvas?) {
-        if (!isDead) {
-            var current: Int = birb.currentFrame
-            birb.x = birb.x - 6
-            birb.y = birb.y - ran.nextInt(1,5) + ran.nextInt(1,5)
+        if (state == 1) {
 
-            canvas!!.drawBitmap(birb.getBirb(current), birb.x.toFloat(), birb.y.toFloat(), null)
 
-            current++
-            if (current > birb.maxFrame)
-                current = 0
-            birb.currentFrame = current
+            for (i in 0 until numBirb) {// 0, 1, 2
+                if (birbArray.get(i).x < 0) {
+
+                    birbArray.get(i).x = ScreenSize.SCREEN_WIDTH
+
+                    birbArray.get(i).y = ScreenSize.SCREEN_HEIGHT - ran.nextInt(300, 1000)
+                }
+
+                if (!isDead) {
+                    birbArray.get(i).x = birbArray.get(i).x - ran.nextInt(10, 30)
+                }
+
+                var current: Int = birbArray.get(i).currentFrame
+                canvas!!.drawBitmap(
+                    birbArray.get(i).getBirb(current),
+                    birbArray.get(i).x.toFloat(),
+                    birbArray.get(i).y.toFloat(),
+                    null
+                )
+
+                current++
+                if (current > birbArray.get(i).maxFrame)
+                    current = 0
+                birbArray.get(i).currentFrame = current
+                var x = birbArray.get(i).x
+                var y = birbArray.get(i).y
+                Log.d("CHIM $i: ", "[$x, $y]")
+            }
         }
-        Log.d(TAG, "Render bird")
     }
 
     private fun renderFlight(canvas: Canvas?) {
@@ -254,7 +291,7 @@ class PlayThread : Thread {
 
     private fun renderBullet(canvas: Canvas?) {
         if (state == 1) { //if the game is running
-            if (bulletArray.get(iBullet).x > 900) {
+            if (bulletArray.get(iBullet).x > ScreenSize.SCREEN_WIDTH) {
                 iBullet++
                 if (iBullet > numBullet - 1) {
                     iBullet = 0
