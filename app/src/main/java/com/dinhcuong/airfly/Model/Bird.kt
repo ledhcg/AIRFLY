@@ -3,6 +3,7 @@ package com.dinhcuong.airfly.Model
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Rect
 import com.dinhcuong.airfly.R
 import kotlin.random.Random
 
@@ -24,18 +25,22 @@ class Bird (res : Resources) {
         set(value) {
             field = value
         }
-    var birdList : ArrayList<Bitmap>
+    var birdList : ArrayList<Bitmap> = arrayListOf()
+
+    var dead: Boolean = false
+
+    var bird_dead = BitmapFactory.decodeResource(res, R.drawable.bird_dead)
+        get() = field
 
     init {
-        birdList = arrayListOf()
-        birdList.add(BitmapFactory.decodeResource(res, R.drawable.b0))
-        birdList.add(BitmapFactory.decodeResource(res, R.drawable.b1))
-        birdList.add(BitmapFactory.decodeResource(res, R.drawable.b2))
-        birdList.add(BitmapFactory.decodeResource(res, R.drawable.b3))
-        birdList.add(BitmapFactory.decodeResource(res, R.drawable.b4))
-        birdList.add(BitmapFactory.decodeResource(res, R.drawable.b5))
-        birdList.add(BitmapFactory.decodeResource(res, R.drawable.b6))
-        birdList.add(BitmapFactory.decodeResource(res, R.drawable.b7))
+        birdList.add(BitmapFactory.decodeResource(res, R.drawable.bird_1))
+        birdList.add(BitmapFactory.decodeResource(res, R.drawable.bird_2))
+        birdList.add(BitmapFactory.decodeResource(res, R.drawable.bird_3))
+        birdList.add(BitmapFactory.decodeResource(res, R.drawable.bird_4))
+        birdList.add(BitmapFactory.decodeResource(res, R.drawable.bird_5))
+        birdList.add(BitmapFactory.decodeResource(res, R.drawable.bird_6))
+        birdList.add(BitmapFactory.decodeResource(res, R.drawable.bird_7))
+        birdList.add(BitmapFactory.decodeResource(res, R.drawable.bird_8))
 
         x = ScreenSize.SCREEN_WIDTH
         y = ran.nextInt(10,ScreenSize.SCREEN_HEIGHT/2 - 10)

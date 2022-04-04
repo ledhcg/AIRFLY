@@ -1,19 +1,20 @@
 package com.dinhcuong.airfly.Model
 
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.dinhcuong.airfly.R
 
 
-class Cot (res : Resources){
-    val cotTop = BitmapFactory.decodeResource(res, R.drawable.col_top)
+class Pipe (res : Resources){
+    val pipeTop: Bitmap = BitmapFactory.decodeResource(res, R.drawable.pipe_top)
         get() = field
-    val cotBottom = BitmapFactory.decodeResource(res, R.drawable.col_bottom)
+    val pipeBottom: Bitmap = BitmapFactory.decodeResource(res, R.drawable.pipe_bottom)
         get() = field
 
 
-    val w = cotTop.width
-    val h = cotTop.height
+    val w = pipeTop.width
+    val h = pipeTop.height
 
     var x : Int = 0
         get() = field

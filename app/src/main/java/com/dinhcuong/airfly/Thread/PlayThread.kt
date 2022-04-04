@@ -1,5 +1,7 @@
 package com.dinhcuong.airfly.Thread
 
+import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.graphics.*
 import android.util.Log
@@ -8,6 +10,7 @@ import com.dinhcuong.airfly.Model.*
 import com.dinhcuong.airfly.R
 import kotlin.collections.ArrayList
 import kotlin.random.Random
+import com.dinhcuong.airfly.MainActivity
 
 
 class PlayThread : Thread {
@@ -21,6 +24,7 @@ class PlayThread : Thread {
     private val backgroundImage = BackgroundImage() //Hello, new object
     private var bitmapImage: Bitmap? = null
     private val paint: Paint
+    private val textBounds: Rect = Rect()
     private var startTime: Long = 0
     private var frameTime: Long = 0
 
@@ -49,16 +53,16 @@ class PlayThread : Thread {
     private var velocityBird: Int = 10
 
 
-    var cot: Cot? = null
-    val numCot = 2
-    val velocityCot = 10
+    var pipe: Pipe? = null
+    val numPipe = 2
+    val velocityPipe = 10
     val minY = 250
     val maxY = ScreenSize.SCREEN_HEIGHT - minY - 500
     val kc = ScreenSize.SCREEN_WIDTH * 3 / 4
-    var cotArray: ArrayList<Cot> = arrayListOf()
+    var pipeArray: ArrayList<Pipe> = arrayListOf()
     var ran: Random = Random
 
-    var iCot = 0
+    var iPipe = 0
     var isDead = false
 
 
@@ -69,7 +73,10 @@ class PlayThread : Thread {
         }
 
 
-    constructor(holder: SurfaceHolder, resources: Resources) {
+    constructor(
+        holder: SurfaceHolder,
+        resources: Resources
+    ) {
         this.holder = holder
         this.resources = resources
         isRunning = true
@@ -97,9 +104,9 @@ class PlayThread : Thread {
         bitmapImage = BitmapFactory.decodeResource(resources, R.drawable.background_image)
         bitmapImage = this.bitmapImage?.let { ScaleResize(it) }
 
-        //Cots or otherwise known as insidious Mario Pipes
-        cot = Cot(resources)
-        createCot(resources)
+        //Pipes or otherwise known as insidious Mario Pipes
+        pipe = Pipe(resources)
+        createPipe(resources)
     }
 
     private fun createBird(resources: Resources) {
@@ -120,12 +127,75 @@ class PlayThread : Thread {
         }
     }
 
-    private fun createCot(resources: Resources) {
-        for (i in 0 until numCot) {
-            val cot = Cot(resources)
-            cot.x = ScreenSize.SCREEN_WIDTH + kc * i
-            cot.ccY = ran.nextInt(maxY - minY) + minY
-            cotArray.add(cot)
+    private fun createPipe(resources: Resources) {
+        for (i in 0 until numPipe) {
+            val pipe = Pipe(resources)
+            pipe.x = ScreenSize.SCREEN_WIDTH + kc * i
+            pipe.ccY = ran.nextInt(maxY - minY) + minY
+            pipeArray.add(pipe)
+        }
+    }
+
+    private fun collisionHandle() {
+        //Collision detection (Bird and Flight) or (Bird and LeftScreen)
+        for (i in 0 until numBird) {
+            if (isCollisionDetected(
+                    birdArray.get(i).getBird(0), birdArray.get(i).x, birdArray.get(i).y,
+                    flight.getFlight(0), flight.x, flight.y
+                ) || birdArray.get(i).x < 0
+            ) {
+                isDead = true
+            }
+        }
+
+        //Collision detection Pipe and Flight
+        if (
+            isCollisionDetected(
+                pipeArray.get(iPipe).pipeTop,
+                pipeArray.get(iPipe).x,
+                pipeArray.get(iPipe).getTopY(),
+                flight.getFlight(0),
+                flight.x,
+                flight.y
+            )
+            || isCollisionDetected(
+                pipeArray.get(iPipe).pipeBottom,
+                pipeArray.get(iPipe).x,
+                pipeArray.get(iPipe).getBottomY(),
+                flight.getFlight(0),
+                flight.x,
+                flight.y
+            )
+        )
+            isDead = true
+
+        //Collision detection Bird and Bullet
+        for (i in 0 until numBullet) {
+            for (j in 0 until numBird) {
+                if (
+                    isCollisionDetected(
+                        bulletArray.get(i).bullet,
+                        bulletArray.get(i).x,
+                        bulletArray.get(i).y,
+                        birdArray.get(j).getBird(0),
+                        birdArray.get(j).x,
+                        birdArray.get(j).y
+                    )
+                ) {
+                    birdArray.get(j).dead = true
+//                    birdArray.get(j).x = ScreenSize.SCREEN_WIDTH
+//                    birdArray.get(j).y = ScreenSize.SCREEN_HEIGHT - ran.nextInt(300, 1000)
+
+                    bulletArray.get(i).x = flight.x + 150
+                    bulletArray.get(i).y = flight.y + 160
+                    killBird++
+                }
+            }
+        }
+
+        //Collision detection Flight and BottomScreen
+        if (flight.y >= (ScreenSize.SCREEN_HEIGHT - flight.getFlight(0).height)) {
+            isDead = true
         }
     }
 
@@ -133,25 +203,24 @@ class PlayThread : Thread {
         Log.d(TAG, "Thread Started")
 
         while (isRunning) {
-            if (holder == null) return
             startTime = System.nanoTime()
             val canvas = holder.lockCanvas()
             if (canvas != null) {
                 try {
                     synchronized(holder) {
-                        //rendering the background
-                        render(canvas)
 
+                        renderBackground(canvas)
+
+                        collisionHandle()
+                        flightDeath(canvas)
 
                         //rendering the pipes. Damn pipes.
-                        renderCot(canvas)
-
+                        renderPipe(canvas)
                         //rendering the bird on canvas
                         renderBird(canvas)
-
                         renderFlight(canvas)
 
-                        canvas.drawText("Bird killed: $killBird", 100f, 100f, paint)
+                        canvas.drawText("Bird killed: $killBird | Score: $score", 100f, 100f, paint)
                     }
                 } finally {
                     holder.unlockCanvasAndPost(canvas)
@@ -169,71 +238,56 @@ class PlayThread : Thread {
         Log.d(TAG, "Thread has reached its finale. Zargothrax Approves.")
     }
 
-    private fun flightDeath() {
+    private fun flightDeath(canvas: Canvas?) {
         if (isDead) {
+            canvas!!.drawBitmap(
+                flight.flight_dead,
+                flight.x.toFloat(),
+                flight.y.toFloat(),
+                null
+            )
+            showGameOver(canvas)
             isRunning = false
         }
     }
 
-    private fun renderCot(canvas: Canvas?) {
+    private fun renderPipe(canvas: Canvas?) {
         if (state == 1) { //if the game is running
-            if (cotArray.get(iCot).x < flight.x - cot!!.w) {
-                iCot++
-                if (iCot > numCot - 1) {
-                    iCot = 0
+            if (pipeArray.get(iPipe).x < flight.x - pipe!!.w) {
+                iPipe++
+                score++
+                if (iPipe > numPipe - 1) {
+                    iPipe = 0
                 }
-            } else if (
-                (cotArray.get(iCot).x > flight.x
-                        && cotArray.get(iCot).x < flight.x + flight.getFlight(0).width
-                        && cotArray.get(iCot).ccY > flight.y
-                        && cotArray.get(iCot).ccY < flight.y + flight.getFlight(0).height)
-                || (cotArray.get(iCot).x > flight.x
-                        && cotArray.get(iCot).x < flight.x + flight.getFlight(0).width
-                        && cotArray.get(iCot).getBottomY() > flight.y
-                        && cotArray.get(iCot).getBottomY() < flight.y + flight.getFlight(0).height)
-                || (cotArray.get(iCot).x + cot!!.w > flight.x
-                        && cotArray.get(iCot).x + cot!!.w < flight.x + flight.getFlight(0).width
-                        && cotArray.get(iCot).ccY > flight.y
-                        && cotArray.get(iCot).ccY < flight.y + flight.getFlight(0).height)
-                || (cotArray.get(iCot).x + cot!!.w > flight.x
-                        && cotArray.get(iCot).x + cot!!.w < flight.x + flight.getFlight(0).width
-                        && cotArray.get(iCot).getBottomY() > flight.y
-                        && cotArray.get(iCot).getBottomY() < flight.y + flight.getFlight(0).height)
-            )
-                isDead = true
+            }
 
-//            else if (((cotArray.get(iCot).x) < flight.getFlight(0).width) &&
-//                (cotArray.get(iCot).ccY > flight.y || cotArray.get(iCot)
-//                    .getBottomY() < flight.y + flight.getFlight(0).height)
-//            )
-//                isDead = true
+            for (i in 0 until numPipe) {// 0, 1, 2
+                if (pipeArray.get(i).x < -pipe!!.w) {
 
-            for (i in 0 until numCot) {// 0, 1, 2
-                if (cotArray.get(i).x < -cot!!.w) {
-                    //creating a new cot with x = kc + old_cot
-                    cotArray.get(i).x = cotArray.get(i).x + numCot * kc
-                    //cot.y is going to be random
-                    cotArray.get(i).ccY = ran.nextInt(maxY - minY) + minY
+                    //creating a new pipe with x = kc + old_pipe
+                    pipeArray.get(i).x = pipeArray.get(i).x + numPipe * kc
+                    //pipe.y is going to be random
+                    pipeArray.get(i).ccY = ran.nextInt(maxY - minY) + minY
 
                 }
-                //moving cot right to left
+                //moving pipe right to left
                 if (!isDead) {
-                    cotArray.get(i).x = cotArray.get(i).x - velocityCot
+                    pipeArray.get(i).x = pipeArray.get(i).x - velocityPipe
                 }
 
                 //rendering top pipes
                 canvas!!.drawBitmap(
-                    cot!!.cotTop,
-                    cotArray.get(i).x.toFloat(),
-                    cotArray.get(i).getTopY().toFloat(),
+                    pipe!!.pipeTop,
+                    pipeArray.get(i).x.toFloat(),
+                    pipeArray.get(i).getTopY().toFloat(),
                     null
                 )
 
-                //rendering bottom pipe (cotTop.x = cotBottom.x)
+                //rendering bottom pipe (pipeTop.x = pipeBottom.x)
                 canvas!!.drawBitmap(
-                    cot!!.cotBottom,
-                    cotArray.get(i).x.toFloat(),
-                    cotArray.get(i).getBottomY().toFloat(),
+                    pipe!!.pipeBottom,
+                    pipeArray.get(i).x.toFloat(),
+                    pipeArray.get(i).getBottomY().toFloat(),
                     null
                 )
 
@@ -244,54 +298,47 @@ class PlayThread : Thread {
     private fun renderBird(canvas: Canvas?) {
         if (state == 1) {
             for (i in 0 until numBird) {
-                for (j in 0 until numBullet) {
-                    if (
-                        (bulletArray.get(j).getTargetX() > birdArray.get(i).x
-                                && bulletArray.get(j).getTargetX() < birdArray.get(i).x + birdArray.get(i).getBird(0).width
-                                && bulletArray.get(j).y > birdArray.get(i).y
-                                && bulletArray.get(j).y < birdArray.get(i).y + birdArray.get(i).getBird(0).height)
-                        || (bulletArray.get(j).getTargetX() > birdArray.get(i).x
-                                && bulletArray.get(j).getTargetX() < birdArray.get(i).x + birdArray.get(i).getBird(0).width
-                                && bulletArray.get(j).getTargetY() > birdArray.get(i).y
-                                && bulletArray.get(j).getTargetY() < birdArray.get(i).y + birdArray.get(i).getBird(0).height)
-                    ) {
-                        birdArray.get(i).x = ScreenSize.SCREEN_WIDTH
-                        birdArray.get(i).y = ScreenSize.SCREEN_HEIGHT - ran.nextInt(300, 1000)
 
-                        bulletArray.get(j).x = flight.x + 150
-                        bulletArray.get(j).y = flight.y + 160
-                        killBird++
-                    }
-                }
-            }
-
-            for (i in 0 until numBird) {// 0, 1, 2
-                if (birdArray.get(i).x < 0) {
-
+                if (birdArray.get(i).y > ScreenSize.SCREEN_HEIGHT) {
+                    birdArray.get(i).dead = false
                     birdArray.get(i).x = ScreenSize.SCREEN_WIDTH
-
                     birdArray.get(i).y = ScreenSize.SCREEN_HEIGHT - ran.nextInt(300, 1000)
                 }
 
                 if (!isDead) {
-                    birdArray.get(i).x = birdArray.get(i).x - ran.nextInt(10, 30)
+                    if (birdArray.get(i).dead) {
+                        birdArray.get(i).y = birdArray.get(i).y + 30
+                    } else {
+                        birdArray.get(i).x = birdArray.get(i).x - ran.nextInt(5, 20)
+                    }
                 }
 
                 var current: Int = birdArray.get(i).currentFrame
-                canvas!!.drawBitmap(
-                    birdArray.get(i).getBird(current),
-                    birdArray.get(i).x.toFloat(),
-                    birdArray.get(i).y.toFloat(),
-                    null
-                )
+                if (birdArray.get(i).dead) {
+                    canvas!!.drawBitmap(
+                        birdArray.get(i).bird_dead,
+                        birdArray.get(i).x.toFloat(),
+                        birdArray.get(i).y.toFloat(),
+                        null
+                    )
+                } else {
+                    canvas!!.drawBitmap(
+                        birdArray.get(i).getBird(current),
+                        birdArray.get(i).x.toFloat(),
+                        birdArray.get(i).y.toFloat(),
+                        null
+                    )
+                }
 
                 current++
                 if (current > birdArray.get(i).maxFrame)
                     current = 0
                 birdArray.get(i).currentFrame = current
-                var x = birdArray.get(i).x
-                var y = birdArray.get(i).y
-                Log.d("CHIM $i: ", "[$x, $y]")
+
+//                var x = birdArray.get(i).x
+//                var y = birdArray.get(i).y
+//                var h = ScreenSize.SCREEN_HEIGHT
+//                Log.d("CHIM","Vi tri chim $i: [$x, $y] - Height: $h")
             }
         }
     }
@@ -303,9 +350,6 @@ class PlayThread : Thread {
                     velocityFlight += 2 // fall down
                     flight.y = flight.y + velocityFlight // fly up
                     renderBullet(canvas)
-
-                } else {
-//                    isDead = true
                 }
             }
         }
@@ -338,12 +382,12 @@ class PlayThread : Thread {
 
             for (i in 0 until numBullet) {// 0, 1, 2
                 if (bulletArray.get(i).x < flight.x || bulletArray.get(i).x > ScreenSize.SCREEN_WIDTH) {
-                    //creating a new cot with x = kc + old_cot
+                    //creating a new pipe with x = kc + old_pipe
                     bulletArray.get(i).x = flight.x + 150
-                    //cot.y is going to be random
+                    //pipe.y is going to be random
                     bulletArray.get(i).y = flight.y + 160
                 }
-                //moving cot right to left
+                //moving pipe right to left
                 if (!isDead) {
                     bulletArray.get(i).x =
                         bulletArray.get(i).x + velocityBullet * ran.nextInt(1, 10)
@@ -361,7 +405,7 @@ class PlayThread : Thread {
     }
 
     //Here we are rendering the background
-    private fun render(canvas: Canvas?) {
+    private fun renderBackground(canvas: Canvas?) {
         Log.d(TAG, "Render Canvas")
         if (!isDead) {
             backgroundImage.x = backgroundImage.x - velocity
@@ -394,7 +438,7 @@ class PlayThread : Thread {
 
     //Let's make the screen fit into the application's full screen
     private fun ScaleResize(bitmap: Bitmap): Bitmap {
-        var ratio: Float = (bitmap.width / bitmap.height).toFloat()
+        val ratio: Float = (bitmap.width / bitmap.height).toFloat()
         val scaleWidth: Int = (ratio * ScreenSize.SCREEN_HEIGHT).toInt()
         return Bitmap.createScaledBitmap(bitmap, scaleWidth, ScreenSize.SCREEN_HEIGHT, false)
 
@@ -410,4 +454,59 @@ class PlayThread : Thread {
         }
     }
 
+    private fun showGameOver(canvas: Canvas?) {
+        val paint: Paint = Paint()
+        val customTypeface = resources.getFont(R.font.primary)
+        paint.apply {
+            flags = Paint.ANTI_ALIAS_FLAG
+            this.color = Color.BLACK
+            this.textSize = 200f
+            this.typeface = customTypeface
+            setShadowLayer(1f, 5f, 5f, Color.WHITE)
+        }
+        val textGameOver: String = "GAME OVER"
+        paint.getTextBounds(textGameOver, 0, textGameOver.length, textBounds);
+        canvas!!.drawText(
+            textGameOver, ScreenSize.SCREEN_WIDTH / 2 - textBounds.exactCenterX(),
+            ScreenSize.SCREEN_HEIGHT / 2 - textBounds.exactCenterY(), paint
+        )
+    }
+
+
+    // START - Collision Detection
+    private fun isCollisionDetected(
+        view1: Bitmap, x1: Int, y1: Int,
+        view2: Bitmap, x2: Int, y2: Int
+    ): Boolean {
+        var bitmap1: Bitmap = view1
+        var bitmap2: Bitmap = view2
+        val bounds1: Rect = Rect(x1, y1, x1 + bitmap1.getWidth(), y1 + bitmap1.getHeight())
+        val bounds2: Rect = Rect(x2, y2, x2 + bitmap2.getWidth(), y2 + bitmap2.getHeight())
+        if (Rect.intersects(bounds1, bounds2)) {
+            val collisionBounds: Rect = getCollisionBounds(bounds1, bounds2)
+            for (i in collisionBounds.left until collisionBounds.right) {
+                for (j in collisionBounds.top until collisionBounds.bottom) {
+                    val bitmap1Pixel: Int = bitmap1.getPixel(i - x1, j - y1)
+                    val bitmap2Pixel: Int = bitmap2.getPixel(i - x2, j - y2)
+                    if (isFilled(bitmap1Pixel) && isFilled(bitmap2Pixel)) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
+    private fun getCollisionBounds(rect1: Rect, rect2: Rect): Rect {
+        val left: Int = Math.max(rect1.left, rect2.left)
+        val top: Int = Math.max(rect1.top, rect2.top)
+        val right: Int = Math.min(rect1.right, rect2.right)
+        val bottom: Int = Math.min(rect1.bottom, rect2.bottom)
+        return Rect(left, top, right, bottom)
+    }
+
+    private fun isFilled(pixel: Int): Boolean {
+        return pixel != Color.TRANSPARENT
+    }
+    // END - Collision Detection
 }

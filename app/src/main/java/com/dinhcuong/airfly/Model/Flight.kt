@@ -3,6 +3,7 @@ package com.dinhcuong.airfly.Model
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Rect
 import com.dinhcuong.airfly.R
 
 class Flight (res : Resources) {
@@ -22,18 +23,21 @@ class Flight (res : Resources) {
         set(value) {
             field = value
         }
-    var flightList : ArrayList<Bitmap>
+
+    val flight_dead = BitmapFactory.decodeResource(res, R.drawable.flight_dead)
+        get() = field
+
+    var flightList : ArrayList<Bitmap> = arrayListOf()
 
     init {
-        flightList = arrayListOf()
-        flightList.add(BitmapFactory.decodeResource(res, R.drawable.f1_sm))
-        flightList.add(BitmapFactory.decodeResource(res, R.drawable.f2_sm))
-        flightList.add(BitmapFactory.decodeResource(res, R.drawable.f1_sm))
-        flightList.add(BitmapFactory.decodeResource(res, R.drawable.f2_sm))
-        flightList.add(BitmapFactory.decodeResource(res, R.drawable.f1_sm))
-        flightList.add(BitmapFactory.decodeResource(res, R.drawable.f2_sm))
-        flightList.add(BitmapFactory.decodeResource(res, R.drawable.f1_sm))
-        flightList.add(BitmapFactory.decodeResource(res, R.drawable.f2_sm))
+        flightList.add(BitmapFactory.decodeResource(res, R.drawable.flight_1))
+        flightList.add(BitmapFactory.decodeResource(res, R.drawable.flight_2))
+        flightList.add(BitmapFactory.decodeResource(res, R.drawable.flight_1))
+        flightList.add(BitmapFactory.decodeResource(res, R.drawable.flight_2))
+        flightList.add(BitmapFactory.decodeResource(res, R.drawable.flight_1))
+        flightList.add(BitmapFactory.decodeResource(res, R.drawable.flight_2))
+        flightList.add(BitmapFactory.decodeResource(res, R.drawable.flight_1))
+        flightList.add(BitmapFactory.decodeResource(res, R.drawable.flight_2))
 
         x = ScreenSize.SCREEN_WIDTH/5 - flightList[0].width/2
         y = ScreenSize.SCREEN_HEIGHT/2 - flightList[0].height/2

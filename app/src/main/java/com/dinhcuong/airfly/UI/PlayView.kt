@@ -1,9 +1,11 @@
 package com.dinhcuong.airfly.UI
 
 import android.content.Context
+import android.content.Intent
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import com.dinhcuong.airfly.MainActivity
 import com.dinhcuong.airfly.Thread.PlayThread
 
 class PlayView(context: Context?) : SurfaceView(context), SurfaceHolder.Callback {
@@ -23,7 +25,13 @@ class PlayView(context: Context?) : SurfaceView(context), SurfaceHolder.Callback
         val ev = event!!.action
         if(ev == MotionEvent.ACTION_DOWN){
             //Fly, you fool!
-            playThread?.Jump()
+                if (playThread?.isRunning == true){
+                    playThread?.Jump()
+                } else {
+                    val main = Intent(context, MainActivity::class.java)
+                    context.startActivity(main)
+                }
+
         }
         return true
     }
