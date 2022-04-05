@@ -30,17 +30,14 @@
             <!-- SHADOW -->
             <item>
                 <shape>
-                    <solid android:color="#102746"/>
+                    <solid android:color="#F44331"/>
                 </shape>
             </item>
             <!-- BUTTON -->
             <item android:bottom="5px">
                 <shape>
                     <padding android:bottom="5dp"/>
-                    <gradient
-                        android:startColor="#1c4985"
-                        android:endColor="#163969"
-                        android:angle="270" />
+                    <solid android:color="#FBD22B"/>
                     <padding
                         android:left="10dp"
                         android:top="10dp"

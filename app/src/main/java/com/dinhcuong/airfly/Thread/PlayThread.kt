@@ -25,6 +25,7 @@ class PlayThread : Thread {
     private var bitmapImage: Bitmap? = null
     private val paint: Paint
     private val textBounds: Rect = Rect()
+    private val textBounds2: Rect = Rect()
     private var startTime: Long = 0
     private var frameTime: Long = 0
 
@@ -212,7 +213,6 @@ class PlayThread : Thread {
                         renderBackground(canvas)
 
                         collisionHandle()
-                        flightDeath(canvas)
 
                         //rendering the pipes. Damn pipes.
                         renderPipe(canvas)
@@ -221,6 +221,8 @@ class PlayThread : Thread {
                         renderFlight(canvas)
 
                         canvas.drawText("Bird killed: $killBird | Score: $score", 100f, 100f, paint)
+                        canvas.drawText("FPS: $frameTime", 100f, ScreenSize.SCREEN_HEIGHT - 100f, paint)
+                        flightDeath(canvas)
                     }
                 } finally {
                     holder.unlockCanvasAndPost(canvas)
@@ -464,11 +466,35 @@ class PlayThread : Thread {
             this.typeface = customTypeface
             setShadowLayer(1f, 5f, 5f, Color.WHITE)
         }
+
+        val paint2: Paint = Paint()
+        val customTypeface2 = resources.getFont(R.font.secondary)
+        paint2.apply {
+            flags = Paint.ANTI_ALIAS_FLAG
+            this.color = Color.BLACK
+            this.textSize = 73f
+            this.typeface = customTypeface2
+            setShadowLayer(1f, 2f, 2f, Color.WHITE)
+        }
+
+        val blurBG: Paint = Paint()
+        val w = ScreenSize.SCREEN_WIDTH
+        val h = ScreenSize.SCREEN_HEIGHT
+        blurBG.color = Color.rgb(255, 255, 255)
+        blurBG.alpha = 160
+        canvas!!.drawRect(0.toFloat(), 0.toFloat(), w.toFloat(), h.toFloat(),blurBG)
+
         val textGameOver: String = "GAME OVER"
+        val tapOnScreen: String = "tap on screen to try again"
         paint.getTextBounds(textGameOver, 0, textGameOver.length, textBounds);
+        paint2.getTextBounds(tapOnScreen, 0, tapOnScreen.length, textBounds2);
         canvas!!.drawText(
             textGameOver, ScreenSize.SCREEN_WIDTH / 2 - textBounds.exactCenterX(),
-            ScreenSize.SCREEN_HEIGHT / 2 - textBounds.exactCenterY(), paint
+            ScreenSize.SCREEN_HEIGHT / 2 - textBounds.exactCenterY() - 50, paint
+        )
+        canvas!!.drawText(
+            tapOnScreen, ScreenSize.SCREEN_WIDTH / 2 - textBounds2.exactCenterX(),
+            ScreenSize.SCREEN_HEIGHT / 2 - textBounds2.exactCenterY() + 100, paint2
         )
     }
 
