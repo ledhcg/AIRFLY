@@ -18,6 +18,10 @@
         <item name="fontFamily">@font/primary</item>
         <item name="android:textSize">64sp</item>
     </style>
+    <style name="text_h3">
+        <item name="fontFamily">@font/primary</item>
+        <item name="android:textSize">40sp</item>
+    </style>
     <style name="text_p">
         <item name="fontFamily">@font/secondary</item>
         <item name="android:textSize">16sp</item>

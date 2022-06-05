@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.dinhcuong.airfly.API.ApiInterface
@@ -18,9 +19,15 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         val buttonLogin = findViewById<Button>(R.id.button_login)
+        val switchRegister = findViewById<TextView>(R.id.switch_register)
         val editTextEmail = findViewById<EditText>(R.id.email_input)
         val editTextPassword = findViewById<EditText>(R.id.password_input)
 
+        switchRegister.setOnClickListener {
+            val intent = Intent(applicationContext, RegisterActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
         buttonLogin.setOnClickListener {
             val email = editTextEmail.text.toString().trim()
             val password = editTextPassword.text.toString().trim()

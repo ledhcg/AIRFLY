@@ -9,4 +9,8 @@
     <string name="register">Register</string>
     <string name="go_to_login">Go to login?</string>
     <string name="go_to_register">Go to register?</string>
+    <string name="setting">setting</string>
+    <string name="save">Save</string>
+    <string name="select_theme">SELECT THEME</string>
+    <string name="back">Back</string>
 </resources>

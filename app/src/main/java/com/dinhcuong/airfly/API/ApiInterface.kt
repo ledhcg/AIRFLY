@@ -18,4 +18,14 @@ interface ApiInterface {
         @Field("email") email: String,
         @Field("password") password: String,
     ): retrofit2.Response<Users>
+
+    @FormUrlEncoded
+    @POST("login.php")
+    suspend fun create(
+        @Field("action") action: String,
+        @Field("name") name: String,
+        @Field("phone") phone: String,
+        @Field("email") email: String,
+        @Field("password") password: String,
+    ): retrofit2.Response<Users>
 }

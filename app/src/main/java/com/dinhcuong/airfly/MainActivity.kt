@@ -20,6 +20,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         ScreenSize.getScreenSize(this)
         val buttonPlay = findViewById<Button>(R.id.button_play)
+        val buttonSetting = findViewById<Button>(R.id.button_setting)
+
+        buttonSetting.setOnClickListener {
+            val intent = Intent(applicationContext, SettingActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
+
         buttonPlay.setOnClickListener {
             val iPlayGame = Intent(this@MainActivity, PlayActivity::class.java)
             startActivity(iPlayGame)
