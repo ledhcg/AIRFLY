@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SettingActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background_login" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_margin="30dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+        <TextView
+            style="@style/text_h1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:shadowColor="#E91E63"
+            android:shadowDx="5"
+            android:shadowDy="5"
+            android:shadowRadius="1"
+            android:textColor="#FF9800"
+            android:text="@string/app_name" />
+
+        <TextView
+            style="@style/text_p"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/description"
+            android:textColor="#3F51B5" />
+
+        <EditText
+            android:id="@+id/email_input"
+            android:layout_marginTop="20dp"
+            style="@style/text_button"
+            android:hint="@string/email"
+            android:drawableLeft="@drawable/edit_text"
+            android:textColor="#F44336"
+            android:textColorHint="@color/teal_700"
+            android:background="@drawable/edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:inputType="textEmailAddress"/>
+        <EditText
+            android:id="@+id/password_input"
+            android:layout_marginTop="20dp"
+            style="@style/text_button"
+            android:hint="@string/password"
+            android:textColor="#F44336"
+            android:textColorHint="@color/teal_700"
+            android:background="@drawable/edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:inputType="textPassword"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/button_login"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="20dp"
+                style="@style/text_button"
+                android:text="@string/login"
+                android:textColor="#F44336"
+                android:paddingBottom="15dp"
+                android:background="@drawable/button"
+                android:shadowColor="#000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="1"
+                android:textAllCaps="false"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
+            <TextView
+                app:layout_constraintTop_toTopOf="@id/button_login"
+                app:layout_constraintBottom_toBottomOf="@id/button_login"
+                app:layout_constraintLeft_toLeftOf="parent"
+                style="@style/text_p"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:shadowColor="#E91E63"
+                android:shadowDx="5"
+                android:shadowDy="5"
+                android:shadowRadius="1"
+                android:textColor="#FF9800"
+                android:text="Create new account?" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+</RelativeLayout>

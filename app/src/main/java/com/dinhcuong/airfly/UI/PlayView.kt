@@ -17,7 +17,7 @@ class PlayView(context: Context?) : SurfaceView(context), SurfaceHolder.Callback
         val holder = holder
         holder.addCallback(this)
         isFocusable = true
-        playThread = PlayThread(holder, resources)
+        playThread = context?.let { PlayThread(it, holder, resources) }
 
     }
 
@@ -39,7 +39,7 @@ class PlayView(context: Context?) : SurfaceView(context), SurfaceHolder.Callback
     override fun surfaceCreated(p0: SurfaceHolder) {
         if(!playThread!!.isRunning){
             playThread = p0.let {
-                PlayThread(it!!, resources)
+                PlayThread(context, it!!, resources)
             }
         }else{
             playThread!!.start()

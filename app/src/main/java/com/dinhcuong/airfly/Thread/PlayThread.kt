@@ -11,6 +11,7 @@ import com.dinhcuong.airfly.R
 import kotlin.collections.ArrayList
 import kotlin.random.Random
 import com.dinhcuong.airfly.MainActivity
+import com.dinhcuong.airfly.Storage.SharedPrefManager
 
 
 class PlayThread : Thread {
@@ -18,10 +19,11 @@ class PlayThread : Thread {
     private val TAG: String = "PlayThread"
     private var holder: SurfaceHolder
     private var resources: Resources
+    private var context: Context
 
 
     private val FPS: Int = (1000.0 / 60.0).toInt() //Time passed per frame. 60 FPS
-    private val backgroundImage = BackgroundImage() //Hello, new object
+    private val backgroundImage = BackgroundImage()
     private var bitmapImage: Bitmap? = null
     private val paint: Paint
     private val textBounds: Rect = Rect()
@@ -50,7 +52,7 @@ class PlayThread : Thread {
 
 
     //Game state: 0 = Stop; 1 = Running; 2 = Game Over
-    private var state: Int = 0
+    var state: Int = 0
     private var velocityBird: Int = 10
 
 
@@ -75,9 +77,11 @@ class PlayThread : Thread {
 
 
     constructor(
+        context: Context,
         holder: SurfaceHolder,
         resources: Resources
     ) {
+        this.context = context
         this.holder = holder
         this.resources = resources
         isRunning = true
@@ -102,7 +106,11 @@ class PlayThread : Thread {
         }
 
         //background of the game
-        bitmapImage = BitmapFactory.decodeResource(resources, R.drawable.background_image)
+        val imageNameBackgroundImage = "background_image";
+        bitmapImage = BitmapFactory.decodeResource(resources, resources.getIdentifier(
+            imageNameBackgroundImage, "drawable",
+            context.packageName,
+        ))
         bitmapImage = this.bitmapImage?.let { ScaleResize(it) }
 
         //Pipes or otherwise known as insidious Mario Pipes
