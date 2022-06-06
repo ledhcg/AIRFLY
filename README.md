@@ -14,5 +14,7 @@ A game project for Android using Kotlin.
 *	Website: [ledinhcuong.com](https://ledinhcuong.com)
 
 # .versionHistory()
+* 1.6.7-OFFICIAL
+    * Version Official
 * 0.4.4-beta
     * Initial Release
