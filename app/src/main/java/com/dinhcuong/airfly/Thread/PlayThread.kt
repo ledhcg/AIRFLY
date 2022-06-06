@@ -1,16 +1,26 @@
 package com.dinhcuong.airfly.Thread
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.graphics.*
 import android.util.Log
 import android.view.SurfaceHolder
+import android.widget.Toast
+import androidx.core.content.ContextCompat.startActivity
+import androidx.lifecycle.lifecycleScope
+import com.dinhcuong.airfly.API.ApiInterface
+import com.dinhcuong.airfly.API.RetrofitClient
+import com.dinhcuong.airfly.Activity.MainActivity
 import com.dinhcuong.airfly.Model.*
 import com.dinhcuong.airfly.R
 import kotlin.collections.ArrayList
 import kotlin.random.Random
 import com.dinhcuong.airfly.Storage.SharedPrefManager
 import com.dinhcuong.airfly.Storage.SharedPrefManager.Companion.DEFAULT_THEME
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class PlayThread : Thread {
@@ -32,6 +42,10 @@ class PlayThread : Thread {
 
     private var killBird: Int = 0
     private var score: Int = 0
+
+    private var accountScore: String? = null
+    private var accountBirdsKilled: String? = null
+    private var accountEmail: String? = null
 
 
     private val bird: Bird
@@ -112,6 +126,13 @@ class PlayThread : Thread {
             context.packageName,
         ))
         bitmapImage = this.bitmapImage?.let { ScaleResize(it) }
+
+
+
+        //Account Info
+        accountScore = sharedPreferences.getString("score", null)
+        accountBirdsKilled = sharedPreferences.getString("birds_killed", null)
+        accountEmail = sharedPreferences.getString("email", null)
 
         //Pipes or otherwise known as insidious Mario Pipes
         pipe = Pipe(resources)
@@ -229,7 +250,7 @@ class PlayThread : Thread {
                         renderFlight(canvas)
 
                         canvas.drawText("Bird killed: $killBird | Score: $score", 100f, 100f, paint)
-                        canvas.drawText("FPS: $frameTime", 100f, ScreenSize.SCREEN_HEIGHT - 100f, paint)
+                        showPlayText(canvas)
                         flightDeath(canvas)
                     }
                 } finally {
@@ -256,7 +277,21 @@ class PlayThread : Thread {
                 flight.y.toFloat(),
                 null
             )
-            showGameOver(canvas)
+            if (score > accountScore?.toInt() ?: 0  || killBird > accountBirdsKilled?.toInt() ?: 0) {
+
+                val sharedPreferences = context.getSharedPreferences(SharedPrefManager.SHARED_PREF_NAME, Context.MODE_PRIVATE)
+                val editor = sharedPreferences.edit()
+                editor.putString("score", score.toString())
+                editor.putString("birds_killed", killBird.toString())
+                editor.apply()
+
+                Log.e("CUONG", score.toString());
+                Log.e("CUONG", killBird.toString());
+                accountEmail?.let { updateHighScore(score, killBird, it) }
+                showHighScore(canvas)
+            } else {
+                showGameOver(canvas)
+            }
             isRunning = false
         }
     }
@@ -506,6 +541,77 @@ class PlayThread : Thread {
         )
     }
 
+    private fun showPlayText(canvas: Canvas?) {
+        if(state == 0){
+            val paint: Paint = Paint()
+            val customTypeface = resources.getFont(R.font.primary)
+            paint.apply {
+                flags = Paint.ANTI_ALIAS_FLAG
+                this.color = Color.RED
+                this.textSize = 150f
+                this.typeface = customTypeface
+                setShadowLayer(1f, 5f, 5f, Color.CYAN)
+            }
+
+            val blurBG: Paint = Paint()
+            val w = ScreenSize.SCREEN_WIDTH
+            val h = ScreenSize.SCREEN_HEIGHT
+            blurBG.color = Color.rgb(0, 0, 0)
+            blurBG.alpha = 100
+            canvas!!.drawRect(0.toFloat(), 0.toFloat(), w.toFloat(), h.toFloat(),blurBG)
+
+            val textTapToPlay: String = "TAP TO PLAY"
+            paint.getTextBounds(textTapToPlay, 0, textTapToPlay.length, textBounds);
+            canvas!!.drawText(
+                textTapToPlay, ScreenSize.SCREEN_WIDTH / 2 - textBounds.exactCenterX(),
+                ScreenSize.SCREEN_HEIGHT / 2 - textBounds.exactCenterY(), paint
+            )
+        }
+
+    }
+
+    private fun showHighScore(canvas: Canvas?) {
+        val paint: Paint = Paint()
+        val customTypeface = resources.getFont(R.font.primary)
+        paint.apply {
+            flags = Paint.ANTI_ALIAS_FLAG
+            this.color = Color.RED
+            this.textSize = 200f
+            this.typeface = customTypeface
+            setShadowLayer(1f, 5f, 5f, Color.CYAN)
+        }
+
+        val paint2: Paint = Paint()
+        val customTypeface2 = resources.getFont(R.font.secondary)
+        paint2.apply {
+            flags = Paint.ANTI_ALIAS_FLAG
+            this.color = Color.BLACK
+            this.textSize = 73f
+            this.typeface = customTypeface2
+            setShadowLayer(1f, 2f, 2f, Color.WHITE)
+        }
+
+        val blurBG: Paint = Paint()
+        val w = ScreenSize.SCREEN_WIDTH
+        val h = ScreenSize.SCREEN_HEIGHT
+        blurBG.color = Color.rgb(255, 255, 255)
+        blurBG.alpha = 160
+        canvas!!.drawRect(0.toFloat(), 0.toFloat(), w.toFloat(), h.toFloat(),blurBG)
+
+        val textHightScore: String = "HIGHSCORE"
+        val tapOnScreen: String = "tap on screen to try again"
+        paint.getTextBounds(textHightScore, 0, textHightScore.length, textBounds);
+        paint2.getTextBounds(tapOnScreen, 0, tapOnScreen.length, textBounds2);
+        canvas!!.drawText(
+            textHightScore, ScreenSize.SCREEN_WIDTH / 2 - textBounds.exactCenterX(),
+            ScreenSize.SCREEN_HEIGHT / 2 - textBounds.exactCenterY() - 50, paint
+        )
+        canvas!!.drawText(
+            tapOnScreen, ScreenSize.SCREEN_WIDTH / 2 - textBounds2.exactCenterX(),
+            ScreenSize.SCREEN_HEIGHT / 2 - textBounds2.exactCenterY() + 100, paint2
+        )
+    }
+
 
     // START - Collision Detection
     private fun isCollisionDetected(
@@ -541,6 +647,29 @@ class PlayThread : Thread {
 
     private fun isFilled(pixel: Int): Boolean {
         return pixel != Color.TRANSPARENT
+    }
+
+    private fun updateHighScore(score: Int, birdsKilled: Int, email: String){
+        val retrofit = RetrofitClient.getInstance()
+        val apiInterface = retrofit.create(ApiInterface::class.java)
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val response = apiInterface.updateHighScore("update", email, score, killBird)
+                if (response.isSuccessful) {
+                    if (response.body()?.isSuccess == true) {
+                        Log.e("CUONG", response.body()!!.email.toString());
+                        Log.e("CUONG", response.body()!!.score.toString());
+                        Log.e("CUONG", response.body()!!.birdsKilled.toString());
+                    } else {
+                        Log.e("CUONG", "Update HIGHSCORE failed");
+                    }
+                } else {
+                    Log.e("CUONG", "Connection error");
+                }
+            } catch (Ex: Exception) {
+                Ex.localizedMessage?.let { Log.e("Error", it) }
+            }
+        }
     }
     // END - Collision Detection
 }

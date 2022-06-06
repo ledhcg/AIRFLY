@@ -3,7 +3,14 @@ package com.dinhcuong.airfly.Model
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class Users(int: String?, string: String?, string1: String?, string2: String?) {
+class Users(
+    name: String?,
+    email: String?,
+    phone: String?,
+    score: String?,
+    birds_killded: String?,
+    time: String?
+) {
     @SerializedName("isSuccess")
     @Expose
     var isSuccess: Boolean? = null

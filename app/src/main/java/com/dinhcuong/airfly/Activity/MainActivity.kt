@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         ScreenSize.getScreenSize(this)
         val buttonPlay = findViewById<Button>(R.id.button_play)
         val buttonSetting = findViewById<Button>(R.id.button_setting)
+        val buttonScore = findViewById<Button>(R.id.button_score)
         val imageBackground = findViewById<ImageView>(R.id.background)
 
         //Set background
@@ -42,11 +43,16 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        buttonScore.setOnClickListener {
+            val intent = Intent(applicationContext, ScoreActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
+
         buttonPlay.setOnClickListener {
-            val iPlayGame = Intent(this@MainActivity, PlayActivity::class.java)
-            startActivity(iPlayGame)
-            finish()
-            Log.d(TAG, "Button Play Activated")
+            val intent = Intent(applicationContext, PlayActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
         }
         val retrofit = RetrofitClient.getInstance()
         val apiInterface = retrofit.create(ApiInterface::class.java)

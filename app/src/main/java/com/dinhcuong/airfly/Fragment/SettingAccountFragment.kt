@@ -9,8 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.RadioButton
+import android.widget.TextView
 import androidx.viewpager.widget.ViewPager
 import com.dinhcuong.airfly.Activity.MainActivity
+import com.dinhcuong.airfly.Activity.SettingActivity
 import com.dinhcuong.airfly.Adapter.SettingViewPagerAdapter
 import com.dinhcuong.airfly.R
 import com.dinhcuong.airfly.Storage.SharedPrefManager
@@ -46,16 +48,28 @@ class SettingAccountFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_setting_account, container, false);
 
-//        val sharedPreferences =
-//            context?.getSharedPreferences(SharedPrefManager.SHARED_PREF_NAME, Context.MODE_PRIVATE)
-//        val nameImageBackground = sharedPreferences?.getString("theme",
-//            SharedPrefManager.DEFAULT_THEME
-//        )
-//        when(nameImageBackground){
-//            "background_theme1" -> context?.let { checkTheme(view, it, "theme1") }
-//            "background_theme2" -> context?.let { checkTheme(view, it, "theme2") }
-//            "background_theme3" -> context?.let { checkTheme(view, it, "theme3") }
-//        }
+        val sharedPreferences =
+            context?.getSharedPreferences(SharedPrefManager.SHARED_PREF_NAME, Context.MODE_PRIVATE)
+        val accountName = sharedPreferences?.getString("name", "John")
+        val accountEmail = sharedPreferences?.getString("email", "test@ledinhcuong.com")
+        val accountPhone = sharedPreferences?.getString("phone", "+XXXXXXXXXXX")
+
+        val textAccountName = view.findViewById<TextView>(R.id.account_name)
+        val textAccountEmail = view.findViewById<TextView>(R.id.account_email)
+        val textAccountPhone = view.findViewById<TextView>(R.id.account_phone)
+
+        textAccountName.text = accountName
+        textAccountEmail.text = accountEmail
+        textAccountPhone.text = accountPhone
+
+        val buttonLogout = view.findViewById<Button>(R.id.button_logout)
+        buttonLogout.setOnClickListener {
+            context?.let { SharedPrefManager.getInstance(it).clear() }
+            val intent = Intent(context, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
+
         return view
     }
 

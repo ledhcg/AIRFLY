@@ -28,4 +28,19 @@ interface ApiInterface {
         @Field("email") email: String,
         @Field("password") password: String,
     ): retrofit2.Response<Users>
+
+    @FormUrlEncoded
+    @POST("score.php")
+    suspend fun getScore(
+        @Field("action") action: String
+    ): retrofit2.Response<List<Users>>
+
+    @FormUrlEncoded
+    @POST("score.php")
+    suspend fun updateHighScore(
+        @Field("action") action: String,
+        @Field("email") email: String,
+        @Field("score") score: Int,
+        @Field("birds_killed") birds_killed: Int,
+    ): retrofit2.Response<Users>
 }
