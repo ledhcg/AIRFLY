@@ -1,7 +1,6 @@
 package com.dinhcuong.airfly.Thread
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Resources
 import android.graphics.*
 import android.util.Log
@@ -10,8 +9,8 @@ import com.dinhcuong.airfly.Model.*
 import com.dinhcuong.airfly.R
 import kotlin.collections.ArrayList
 import kotlin.random.Random
-import com.dinhcuong.airfly.MainActivity
 import com.dinhcuong.airfly.Storage.SharedPrefManager
+import com.dinhcuong.airfly.Storage.SharedPrefManager.Companion.DEFAULT_THEME
 
 
 class PlayThread : Thread {
@@ -105,10 +104,11 @@ class PlayThread : Thread {
             setShadowLayer(1f, 0f, 1f, Color.WHITE)
         }
 
-        //background of the game
-        val imageNameBackgroundImage = "background_image";
+        //Change background
+        val sharedPreferences = context.getSharedPreferences(SharedPrefManager.SHARED_PREF_NAME, Context.MODE_PRIVATE)
+        val nameImageBackground = sharedPreferences.getString("theme", DEFAULT_THEME)
         bitmapImage = BitmapFactory.decodeResource(resources, resources.getIdentifier(
-            imageNameBackgroundImage, "drawable",
+            nameImageBackground, "drawable",
             context.packageName,
         ))
         bitmapImage = this.bitmapImage?.let { ScaleResize(it) }

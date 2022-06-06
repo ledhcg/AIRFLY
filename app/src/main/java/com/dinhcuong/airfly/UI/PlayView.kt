@@ -5,7 +5,7 @@ import android.content.Intent
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.dinhcuong.airfly.MainActivity
+import com.dinhcuong.airfly.Activity.MainActivity
 import com.dinhcuong.airfly.Thread.PlayThread
 
 class PlayView(context: Context?) : SurfaceView(context), SurfaceHolder.Callback {

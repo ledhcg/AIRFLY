@@ -12,6 +12,7 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
             return sharedPreferences.getString("email", null) != null
         }
 
+
     val user: Users
         get() {
             val sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
@@ -31,9 +32,17 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
 
         editor.putString("email", user.email)
         editor.putString("name", user.name)
+        editor.putString("theme", DEFAULT_THEME)
 
         editor.apply()
 
+    }
+
+    fun changeBackground(background:  String) {
+        val sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("theme", background)
+        editor.apply()
     }
 
     fun clear() {
@@ -45,7 +54,8 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
 
     @SuppressLint("StaticFieldLeak")
     companion object {
-        private val SHARED_PREF_NAME = "my_shared_preff"
+        val SHARED_PREF_NAME = "CONFIG_APP"
+        val DEFAULT_THEME = "background_theme3"
         @SuppressLint("StaticFieldLeak")
         private var mInstance: SharedPrefManager? = null
         @Synchronized

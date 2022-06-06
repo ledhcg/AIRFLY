@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SettingActivity">
+    tools:context=".Activity.SettingActivity">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/background_login" />
+        android:src="@drawable/background_1" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,112 +30,134 @@
             android:textColor="#FF9800"
             android:text="@string/setting" />
 
-        <TextView
-            style="@style/text_p"
-            android:layout_marginTop="20dp"
-            android:layout_width="wrap_content"
+<!--        <TextView-->
+<!--            style="@style/text_p"-->
+<!--            android:layout_marginTop="20dp"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:text="@string/choose_a_theme"-->
+<!--            android:textColor="#FFFFFF"-->
+<!--            android:shadowColor="#138826"-->
+<!--            android:shadowDx="5"-->
+<!--            android:shadowDy="5"-->
+<!--            android:shadowRadius="1"/>-->
+
+        <com.google.android.material.tabs.TabLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/select_theme"
-            android:textColor="#FFFFFF"
-            android:shadowColor="#138826"
-            android:shadowDx="5"
-            android:shadowDy="5"
-            android:shadowRadius="1"/>
+            android:id="@+id/tab_layout"
+            app:tabMode="fixed"
+            app:tabGravity="center"
+            android:background="@android:color/transparent"
+            app:tabTextAppearance="@style/tab_text"
+            app:tabIndicatorColor="@color/white"
+            app:tabIndicatorHeight="3dp">
+        </com.google.android.material.tabs.TabLayout>
+<!--        <RadioGroup-->
+<!--            android:id="@+id/radio_group_theme"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content" >-->
 
-        <RadioGroup
-            android:id="@+id/radio_group_theme"
+<!--            <LinearLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_margin="20dp"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <ImageView-->
+<!--                    android:scaleType="fitXY"-->
+<!--                    android:layout_width="100dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:src="@drawable/background_theme1" />-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="10dp"-->
+<!--                    style="@style/text_p"-->
+<!--                    android:textColor="#FFEB3B"-->
+<!--                    android:text="Redas"/>-->
+<!--                <RadioButton-->
+<!--                    android:id="@+id/theme1"-->
+<!--                    android:buttonTint="@color/white"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:onClick="radioButtonHandle"/>-->
+
+<!--            </LinearLayout>-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_margin="20dp"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <ImageView-->
+<!--                    android:scaleType="fitXY"-->
+<!--                    android:layout_width="100dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:src="@drawable/background_theme2" />-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="10dp"-->
+<!--                    style="@style/text_p"-->
+<!--                    android:textColor="#FFEB3B"-->
+<!--                    android:text="Baili"/>-->
+<!--                <RadioButton-->
+<!--                    android:id="@+id/theme2"-->
+<!--                    android:buttonTint="@color/white"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:onClick="radioButtonHandle"/>-->
+
+<!--            </LinearLayout>-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_margin="20dp"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <ImageView-->
+<!--                    android:scaleType="fitXY"-->
+<!--                    android:layout_width="100dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:src="@drawable/background_theme3" />-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="10dp"-->
+<!--                    style="@style/text_p"-->
+<!--                    android:textColor="#FFEB3B"-->
+<!--                    android:text="Delian"/>-->
+<!--                <RadioButton-->
+<!--                    android:id="@+id/theme3"-->
+<!--                    android:buttonTint="@color/white"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:onClick="radioButtonHandle"/>-->
+
+<!--            </LinearLayout>-->
+
+
+<!--        </RadioGroup>-->
+
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/view_pager"
+            android:foregroundGravity="center"
             android:layout_gravity="center"
-            android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="150dp">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_margin="20dp"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:scaleType="fitXY"
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:src="@drawable/background_setting" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    style="@style/text_p"
-                    android:textColor="#FFEB3B"
-                    android:text="Redas"/>
-                <RadioButton
-                    android:id="@+id/theme1"
-                    android:buttonTint="@color/white"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="radioButtonHandle"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_margin="20dp"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:scaleType="fitXY"
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:src="@drawable/background_login1" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    style="@style/text_p"
-                    android:textColor="#FFEB3B"
-                    android:text="Baili"/>
-                <RadioButton
-                    android:id="@+id/theme2"
-                    android:buttonTint="@color/white"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="radioButtonHandle"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_margin="20dp"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:scaleType="fitXY"
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:src="@drawable/background_login" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    style="@style/text_p"
-                    android:textColor="#FFEB3B"
-                    android:text="Delian"/>
-                <RadioButton
-                    android:id="@+id/theme3"
-                    android:buttonTint="@color/white"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="radioButtonHandle"/>
-
-            </LinearLayout>
-
-
-        </RadioGroup>
+        </androidx.viewpager.widget.ViewPager>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

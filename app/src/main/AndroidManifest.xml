@@ -12,26 +12,26 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AIRFLY">
         <activity
-            android:name=".SettingActivity"
+            android:name=".Activity.SettingActivity"
             android:exported="false"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".RegisterActivity"
+            android:name=".Activity.RegisterActivity"
             android:exported="false"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".ScoreActivity"
+            android:name=".Activity.ScoreActivity"
             android:exported="false"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".Activity.LoginActivity"
             android:exported="false"
             android:screenOrientation="landscape" />
         <activity
             android:name=".UI.PlayActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Activity.MainActivity"
             android:exported="true"
             android:screenOrientation="landscape">
             <intent-filter>
